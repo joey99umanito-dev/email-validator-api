@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Email Validator Pro",
+    "description": "Validate email addresses with syntax checking, MX record lookup, disposable email detection, and quality scoring. Supports single and bulk validation up to 50 emails.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Email Validator Pro Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://email-validator-api-seven.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/validate": {
+      "post": {
+        "operationId": "validateEmail",
+        "summary": "Validate a single email address",
+        "description": "Validates an email with syntax check, MX record lookup, disposable detection, and quality score (0-100).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Email address to validate",
+                    "example": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": { "type": "string" },
+                    "valid_syntax": { "type": "boolean" },
+                    "mx_records": { "type": "array", "items": { "type": "string" } },
+                    "has_mx": { "type": "boolean" },
+                    "classification": { "type": "string", "enum": ["business", "free", "disposable", "invalid"] },
+                    "quality_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+                    "deliverable": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate/bulk": {
+      "post": {
+        "operationId": "validateBulkEmails",
+        "summary": "Validate up to 50 emails at once",
+        "description": "Bulk validate up to 50 email addresses in a single request.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["emails"],
+                "properties": {
+                  "emails": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Array of email addresses (max 50)",
+                    "example": ["user@example.com", "test@domain.org"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk validation results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": { "type": "array" },
+                    "total": { "type": "integer" },
+                    "valid_count": { "type": "integer" },
+                    "invalid_count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Health check",
+        "description": "Check if the API is running.",
+        "responses": {
+          "200": {
+            "description": "API is healthy"
+          }
+        }
+      }
+    }
+  }
+}
